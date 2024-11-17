@@ -1,0 +1,9 @@
+Rotation of a String
+Rotation involves moving some characters from one end of the string to the other while maintaining the relative order of characters. You can think of it as cutting the string at a certain point and swapping the two parts.
+
+For example, consider the string "abcde":
+
+Original string: "abcde"
+Rotated by 2 positions: "cdeab" (The first two characters "ab" are moved to the end).
+For example, if S1 = "waterbottle" and S2 = "erbottlewat", you can concatenate S1 with itself,
+ giving "waterbottlewaterbottle". The string "erbottlewat" will be a substring of this concatenated string.
