@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Rotation with Arrows</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            justify-content: center;
+            position: relative;
+        }
+
+        .matrix div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #3498db;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            transition: transform 1s ease, background-color 0.5s ease;
+            position: relative;
+        }
+
+        .matrix div.moving {
+            background-color: #e74c3c;
+        }
+
+        .arrow {
+            position: absolute;
+            font-size: 40px;
+            color: black;
+            transition: transform 1s ease;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #2ecc71;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        .controls button:hover {
+            background-color: #27ae60;
+        }
+
+        .notification {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Matrix Rotation with Arrows</h1>
+    <div class="matrix">
+        <div id="cell-0-0">1</div>
+        <div id="cell-0-1">2</div>
+        <div id="cell-0-2">3</div>
+        <div id="cell-1-0">4</div>
+        <div id="cell-1-1">5</div>
+        <div id="cell-1-2">6</div>
+        <div id="cell-2-0">7</div>
+        <div id="cell-2-1">8</div>
+        <div id="cell-2-2">9</div>
+
+        <!-- Arrow to show movement direction -->
+        <div class="arrow" id="arrow" style="left: 150px; top: -60px;">&#x27A1;</div> <!-- Arrow pointing right -->
+    </div>
+
+    <div class="controls">
+        <button onclick="startRotation('clockwise')">Rotate Clockwise</button>
+        <button onclick="startRotation('anticlockwise')">Rotate Anticlockwise</button>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Matrix element positions
+        let matrix = [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9]
+        ];
+
+        // Mapping DOM elements to their positions
+        const cells = [
+            [document.getElementById('cell-0-0'), document.getElementById('cell-0-1'), document.getElementById('cell-0-2')],
+            [document.getElementById('cell-1-0'), document.getElementById('cell-1-1'), document.getElementById('cell-1-2')],
+            [document.getElementById('cell-2-0'), document.getElementById('cell-2-1'), document.getElementById('cell-2-2')]
+        ];
+
+        let currentRotation = 0;
+        let rotationInterval = 0;
+        const arrow = document.getElementById('arrow');
+        const notification = document.getElementById('notification');
+
+        // Function to handle rotation animation
+        function startRotation(direction) {
+            resetCellStyles();
+
+            // Define rotation steps based on direction (clockwise or anticlockwise)
+            const rotationSteps = direction === 'clockwise' ? 90 : -90;
+
+            // Rotate by 90°, 180°, 270°, 360° (back to 0°)
+            rotationInterval += 90;
+            if (rotationInterval > 360) rotationInterval = 90; // Reset rotation
+
+            if (direction === 'clockwise') {
+                setTimeout(() => rotate90(), 500);
+            } else {
+                setTimeout(() => rotate90Anticlockwise(), 500);
+            }
+
+            // Notify the user of the current rotation state and direction
+            updateNotification(rotationInterval, direction);
+
+            // Update the arrow direction based on clockwise/anticlockwise
+            if (direction === 'clockwise') {
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                arrow.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        // Function to update notification text
+        function updateNotification(degrees, direction) {
+            notification.textContent = `Matrix rotated ${degrees}° ${direction === 'clockwise' ? 'clockwise' : 'anticlockwise'}.`;
+        }
+
+        // Function to rotate the matrix by 90 degrees clockwise
+        function rotate90() {
+            resetCellStyles();
+
+            // Store current positions to swap
+            const tempMatrix = [
+                [matrix[0][0], matrix[0][1], matrix[0][2]],
+                [matrix[1][0], matrix[1][1], matrix[1][2]],
+                [matrix[2][0], matrix[2][1], matrix[2][2]]
+            ];
+
+            // Perform the 90-degree rotation (clockwise)
+            matrix[0][0] = tempMatrix[2][0]; // Bottom-left -> Top-left
+            matrix[0][1] = tempMatrix[1][0]; // Middle-left -> Top-middle
+            matrix[0][2] = tempMatrix[0][0]; // Top-left -> Top-right
+
+            matrix[1][0] = tempMatrix[2][1]; // Bottom-middle -> Middle-left
+            matrix[1][1] = tempMatrix[1][1]; // Center stays the same
+            matrix[1][2] = tempMatrix[0][1]; // Top-middle -> Middle-right
+
+            matrix[2][0] = tempMatrix[2][2]; // Bottom-right -> Bottom-left
+            matrix[2][1] = tempMatrix[1][2]; // Middle-right -> Bottom-middle
+            matrix[2][2] = tempMatrix[0][2]; // Top-right -> Bottom-right
+
+            animateMatrix();
+        }
+
+        // Function to rotate the matrix by 90 degrees anticlockwise
+        function rotate90Anticlockwise() {
+            resetCellStyles();
+
+            // Store current positions to swap
+            const tempMatrix = [
+                [matrix[0][0], matrix[0][1], matrix[0][2]],
+                [matrix[1][0], matrix[1][1], matrix[1][2]],
+                [matrix[2][0], matrix[2][1], matrix[2][2]]
+            ];
+
+            // Perform the 90-degree rotation (anticlockwise)
+            matrix[0][0] = tempMatrix[0][2]; // Top-right -> Top-left
+            matrix[0][1] = tempMatrix[1][2]; // Middle-right -> Top-middle
+            matrix[0][2] = tempMatrix[2][2]; // Bottom-right -> Top-right
+
+            matrix[1][0] = tempMatrix[0][1]; // Top-middle -> Middle-left
+            matrix[1][1] = tempMatrix[1][1]; // Center stays the same
+            matrix[1][2] = tempMatrix[2][1]; // Bottom-middle -> Middle-right
+
+            matrix[2][0] = tempMatrix[0][0]; // Top-left -> Bottom-left
+            matrix[2][1] = tempMatrix[1][0]; // Middle-left -> Bottom-middle
+            matrix[2][2] = tempMatrix[2][0]; // Bottom-left -> Bottom-right
+
+            animateMatrix();
+        }
+
+        // Function to animate the matrix changes
+        function animateMatrix() {
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const cell = cells[i][j];
+                    cell.textContent = matrix[i][j];
+                    cell.classList.add('moving');
+                }
+            }
+
+            // Remove the 'moving' class after animation ends
+            setTimeout(() => {
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        cells[i][j].classList.remove('moving');
+                    }
+                }
+            }, 1000); // 1 second delay to allow animations
+        }
+
+        // Function to reset cell styles
+        function resetCellStyles() {
+            cells.flat().forEach(cell => {
+                cell.classList.remove('moving');
+            });
+        }
+    </script>
+
+</body>
+</html>
